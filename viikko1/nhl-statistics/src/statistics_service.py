@@ -1,36 +1,29 @@
 from player_reader import PlayerReader
-
+from player import Player
 
 
 class StatisticsService:
     def __init__(self, reader: PlayerReader):
         self._players = reader.get_players()
 
-    def search(self, name):
+    def search(self, name: str):
         for player in self._players:
             if name in player.name:
                 return player
 
         return None
 
-    def team(self, team_name):
-        players_of_team = filter(
-            lambda player: player.team == team_name,
-            self._players
-        )
+    def team(self, team_name: str) -> list[Player]:
+        players_of_team = filter(lambda player: player.team == team_name, self._players)
 
         return list(players_of_team)
 
-    def top(self, how_many):
+    def top(self, how_many: int) -> list[Player]:
         # metodin käyttämä apufufunktio voidaan määritellä näin
         def sort_by_points(player):
             return player.points
 
-        sorted_players = sorted(
-            self._players,
-            reverse=True,
-            key=sort_by_points
-        )
+        sorted_players = sorted(self._players, reverse=True, key=sort_by_points)
 
         result = []
         i = 0

@@ -5,7 +5,7 @@ class PlayerReader:
     def __init__(self, url: str):
         self._url = url
 
-    def get_players(self):
+    def get_players(self) -> list[Player]:
         players_file = request.urlopen(self._url)
         players = []
 
