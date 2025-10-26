@@ -27,6 +27,9 @@ class StatisticsService:
 
         result = []
         i = 0
+        # This implementation seems a bit buggy:
+        # - Why do we return top n plus one players?
+        # - Why is there no bounds checking?
         while i <= how_many:
             result.append(sorted_players[i])
             i += 1
