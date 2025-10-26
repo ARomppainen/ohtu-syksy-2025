@@ -1,7 +1,7 @@
 from parameterized import parameterized
 import unittest
 from player import Player
-from statistics_service import StatisticsService
+from statistics_service import SortBy, StatisticsService
 
 
 class PlayerReaderStub:
@@ -60,14 +60,17 @@ class TestStatisticsService(unittest.TestCase):
 
     @parameterized.expand(
         [
-            (0, ["Gretzky"]),
-            (3, ["Gretzky", "Lemieux", "Yzerman", "Kurri"]),
+            (0, None, ["Gretzky"]),
+            (3, None, ["Gretzky", "Lemieux", "Yzerman", "Kurri"]),
+            (3, SortBy.POINTS, ["Gretzky", "Lemieux", "Yzerman", "Kurri"]),
+            (1, SortBy.GOALS, ["Lemieux", "Yzerman"]),
+            (2, SortBy.ASSISTS, ["Gretzky", "Yzerman", "Lemieux"]),
         ]
     )
     def test_top_should_return_top_n_plus_one_players(
-        self, n: int, expected: list[str]
+        self, n: int, sort_by: SortBy | None, expected: list[str]
     ):
-        result = self.service.top(n)
+        result = self.service.top(n, sort_by)
         self.assertEqual(len(result), n + 1)
         for i, player in enumerate(result):
             self.assertEqual(player.name, expected[i])
