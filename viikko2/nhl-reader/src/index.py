@@ -12,11 +12,12 @@ def main():
         player = Player(**player_dict)
         players.append(player)
 
-    print("Players from FIN:")
+    print("Players from FIN\n")
 
-    for player in players:
-        if player.nationality == 'FIN':
-            print(player)
+    filtered = filter(lambda p: p.nationality == 'FIN', players)
+
+    for player in sorted(filtered, key=lambda p: p.score, reverse=True):
+        print(player)
 
 if __name__ == "__main__":
     main()
