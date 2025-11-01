@@ -28,6 +28,19 @@ def players_table(players: List[Player], season: str, nationality: str) -> Table
     return table
 
 
+def main_loop(
+    console: Console,
+    prompt: Prompt,
+    stats: PlayerStats,
+    nationalities: List[str],
+    season: str,
+):
+    nationality = prompt.ask("Nationality", choices=nationalities, default="")
+    players = stats.top_scorers_by_nationality(nationality)
+    table = players_table(players, season, nationality)
+    console.print(table)
+
+
 def main():
     console = Console()
     prompt = Prompt()
@@ -38,13 +51,10 @@ def main():
     url = f"https://studies.cs.helsinki.fi/nhlstats/{season}/players"
     reader = PlayerReader(url)
     stats = PlayerStats(reader)
-
     nationalities = stats.nationalities()
+
     while True:
-        nationality = prompt.ask("Nationality", choices=nationalities, default="")
-        players = stats.top_scorers_by_nationality(nationality)
-        table = players_table(players, season, nationality)
-        console.print(table)
+        main_loop(console, prompt, stats, nationalities, season)
 
 
 if __name__ == "__main__":
