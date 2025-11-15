@@ -3,3 +3,7 @@
 
 ### Viikko 1, tehtävät 2-13 ja viikko2, tehtävät 6-8
 https://github.com/ARomppainen/ohtuvarasto
+
+
+### Viikko 3, tehtävät 2-4
+https://github.com/ARomppainen/webcounter
