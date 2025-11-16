@@ -13,7 +13,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest (>=8.4.2,<9.0.0)",
-    "parameterized (>=0.9.0,<0.10.0)"
+    "parameterized (>=0.9.0,<0.10.0)",
+    "coverage (>=7.11.3,<8.0.0)"
 ]
 
 [tool.poetry]

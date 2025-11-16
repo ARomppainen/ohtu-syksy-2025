@@ -5,10 +5,10 @@ from kirjanpito import kirjanpito as default_kirjanpito
 class Varasto:
     def __init__(self, kirjanpito=default_kirjanpito):
         self._kirjanpito = kirjanpito
-        self._saldot = {}
+        self._saldot: dict[Tuote, int] = {}
         self._alusta_tuotteet()
 
-    def hae_tuote(self, id):
+    def hae_tuote(self, id: str):
         tuotteet = self._saldot.keys()
 
         for tuote in tuotteet:
@@ -17,19 +17,19 @@ class Varasto:
 
         return None
 
-    def saldo(self, id):
+    def saldo(self, id: str):
         tuote = self.hae_tuote(id)
 
         return self._saldot[tuote]
 
-    def ota_varastosta(self, tuote):
+    def ota_varastosta(self, tuote: Tuote):
         saldo = self.saldo(tuote.id)
 
         self._saldot[tuote] = saldo - 1
 
         self._kirjanpito.lisaa_tapahtuma(f"otettiin varastosta {tuote}")
 
-    def palauta_varastoon(self, tuote):
+    def palauta_varastoon(self, tuote: Tuote):
         saldo = self.saldo(tuote.id)
 
         self._saldot[tuote] = saldo + 1
