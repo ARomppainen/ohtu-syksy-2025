@@ -6,17 +6,19 @@ _DEUCE_THRESHOLD = 3
 
 class TennisGame:
 
-    def __init__(self, player1_name, player2_name):
+    def __init__(self, player1_name: str, player2_name: str):
         self.player1_name = player1_name
         self.player2_name = player2_name
         self.m_score1 = 0
         self.m_score2 = 0
 
-    def won_point(self, player_name):
-        if player_name == "player1":
+    def won_point(self, player_name: str):
+        if player_name == self.player1_name:
             self.m_score1 = self.m_score1 + 1
-        else:
+        elif player_name == self.player2_name:
             self.m_score2 = self.m_score2 + 1
+        else:
+            raise ValueError(f'Unknown player: "{player_name}"')
 
     def get_score(self):
         if self._is_even_game():
