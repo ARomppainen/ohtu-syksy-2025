@@ -9,14 +9,14 @@ class TennisGame:
     def __init__(self, player1_name: str, player2_name: str):
         self.player1_name = player1_name
         self.player2_name = player2_name
-        self.m_score1 = 0
-        self.m_score2 = 0
+        self.player1_points = 0
+        self.player2_points = 0
 
     def won_point(self, player_name: str):
         if player_name == self.player1_name:
-            self.m_score1 = self.m_score1 + 1
+            self.player1_points += 1
         elif player_name == self.player2_name:
-            self.m_score2 = self.m_score2 + 1
+            self.player2_points += 1
         else:
             raise ValueError(f'Unknown player: "{player_name}"')
 
@@ -30,24 +30,27 @@ class TennisGame:
         return self._score_other_cases()
 
     def _is_even_game(self) -> bool:
-        return self.m_score1 == self.m_score2
+        return self.player1_points == self.player2_points
 
     def _score_even_game(self):
-        if self.m_score1 >= _DEUCE_THRESHOLD:
+        if self.player1_points >= _DEUCE_THRESHOLD:
             return "Deuce"
-        return f"{self._points_to_score(self.m_score1)}-All"
+        return f"{self._points_to_score(self.player1_points)}-All"
 
     def _is_advantage_or_won_game(self):
-        return self.m_score1 >= _WIN_THRESHOLD or self.m_score2 >= _WIN_THRESHOLD
+        return (
+            self.player1_points >= _WIN_THRESHOLD
+            or self.player2_points >= _WIN_THRESHOLD
+        )
 
     def _score_advantage_or_won_game(self):
-        difference = self.m_score1 - self.m_score2
+        points_difference = self.player1_points - self.player2_points
 
-        if difference == 1:
+        if points_difference == 1:
             return self._score_advantage(1)
-        if difference == -1:
+        if points_difference == -1:
             return self._score_advantage(2)
-        if difference >= 2:
+        if points_difference >= 2:
             return self._score_win(1)
         return self._score_win(2)
 
@@ -60,8 +63,8 @@ class TennisGame:
         return f"Win for player{player}"
 
     def _score_other_cases(self):
-        score1 = self._points_to_score(self.m_score1)
-        score2 = self._points_to_score(self.m_score2)
+        score1 = self._points_to_score(self.player1_points)
+        score2 = self._points_to_score(self.player2_points)
         return f"{score1}-{score2}"
 
     @staticmethod
