@@ -1,3 +1,6 @@
+from typing import Literal
+
+
 class TennisGame:
 
     def __init__(self, player1_name, player2_name):
@@ -25,13 +28,9 @@ class TennisGame:
         return self.m_score1 == self.m_score2
 
     def _score_even_game(self):
-        if self.m_score1 == 0:
-            return "Love-All"
-        if self.m_score1 == 1:
-            return "Fifteen-All"
-        if self.m_score2 == 2:
-            return "Thirty-All"
-        return "Deuce"
+        if self.m_score1 >= 3:
+            return "Deuce"
+        return f"{self._points_to_score(self.m_score1)}-All"
 
     def _is_advantage_or_won_game(self):
         return self.m_score1 >= 4 or self.m_score2 >= 4
@@ -40,12 +39,20 @@ class TennisGame:
         difference = self.m_score1 - self.m_score2
 
         if difference == 1:
-            return "Advantage player1"
+            return self._score_advantage(1)
         if difference == -1:
-            return "Advantage player2"
+            return self._score_advantage(2)
         if difference >= 2:
-            return "Win for player1"
-        return "Win for player2"
+            return self._score_win(1)
+        return self._score_win(2)
+
+    @staticmethod
+    def _score_advantage(player: Literal[1, 2]):
+        return f"Advantage player{player}"
+
+    @staticmethod
+    def _score_win(player: Literal[1, 2]):
+        return f"Win for player{player}"
 
     def _score_other_cases(self):
         score1 = self._points_to_score(self.m_score1)
