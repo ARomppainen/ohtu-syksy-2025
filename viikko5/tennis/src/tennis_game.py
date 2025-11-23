@@ -3,6 +3,8 @@ from typing import Literal
 _WIN_THRESHOLD = 4
 _DEUCE_THRESHOLD = 3
 
+PlayerNumber = Literal[1, 2]
+
 
 class TennisGame:
 
@@ -55,11 +57,11 @@ class TennisGame:
         return self._score_win(2)
 
     @staticmethod
-    def _score_advantage(player: Literal[1, 2]):
+    def _score_advantage(player: PlayerNumber):
         return f"Advantage player{player}"
 
     @staticmethod
-    def _score_win(player: Literal[1, 2]):
+    def _score_win(player: PlayerNumber):
         return f"Win for player{player}"
 
     def _score_other_cases(self):
