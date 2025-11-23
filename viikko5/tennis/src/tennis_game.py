@@ -1,5 +1,8 @@
 from typing import Literal
 
+_WIN_THRESHOLD = 4
+_DEUCE_THRESHOLD = 3
+
 
 class TennisGame:
 
@@ -28,12 +31,12 @@ class TennisGame:
         return self.m_score1 == self.m_score2
 
     def _score_even_game(self):
-        if self.m_score1 >= 3:
+        if self.m_score1 >= _DEUCE_THRESHOLD:
             return "Deuce"
         return f"{self._points_to_score(self.m_score1)}-All"
 
     def _is_advantage_or_won_game(self):
-        return self.m_score1 >= 4 or self.m_score2 >= 4
+        return self.m_score1 >= _WIN_THRESHOLD or self.m_score2 >= _WIN_THRESHOLD
 
     def _score_advantage_or_won_game(self):
         difference = self.m_score1 - self.m_score2
