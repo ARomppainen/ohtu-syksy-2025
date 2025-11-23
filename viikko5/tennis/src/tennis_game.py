@@ -19,26 +19,7 @@ class TennisGame:
         if self._is_advantage_or_won_game():
             return self._score_advantage_or_won_game()
 
-        score = ""
-        temp_score = 0
-
-        for i in range(1, 3):
-            if i == 1:
-                temp_score = self.m_score1
-            else:
-                score = score + "-"
-                temp_score = self.m_score2
-
-            if temp_score == 0:
-                score = score + "Love"
-            elif temp_score == 1:
-                score = score + "Fifteen"
-            elif temp_score == 2:
-                score = score + "Thirty"
-            elif temp_score == 3:
-                score = score + "Forty"
-
-        return score
+        return self._score_other_cases()
 
     def _is_even_game(self) -> bool:
         return self.m_score1 == self.m_score2
@@ -65,3 +46,18 @@ class TennisGame:
         if difference >= 2:
             return "Win for player1"
         return "Win for player2"
+
+    def _score_other_cases(self):
+        score1 = self._points_to_score(self.m_score1)
+        score2 = self._points_to_score(self.m_score2)
+        return f"{score1}-{score2}"
+
+    @staticmethod
+    def _points_to_score(points: int):
+        if points == 0:
+            return "Love"
+        if points == 1:
+            return "Fifteen"
+        if points == 2:
+            return "Thirty"
+        return "Forty"
