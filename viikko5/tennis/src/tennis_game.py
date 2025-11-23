@@ -1,55 +1,79 @@
+from typing import Literal
+
+_WIN_THRESHOLD = 4
+_DEUCE_THRESHOLD = 3
+
+Player = Literal["player1", "player2"]
+PlayerNumber = Literal[1, 2]
+
+
 class TennisGame:
-    def __init__(self, player1_name, player2_name):
+
+    def __init__(self, player1_name: str, player2_name: str):
         self.player1_name = player1_name
         self.player2_name = player2_name
-        self.m_score1 = 0
-        self.m_score2 = 0
+        self.player1_points = 0
+        self.player2_points = 0
 
-    def won_point(self, player_name):
-        if player_name == "player1":
-            self.m_score1 = self.m_score1 + 1
+    def won_point(self, player: Player) -> None:
+        if player == "player1":
+            self.player1_points += 1
         else:
-            self.m_score2 = self.m_score2 + 1
+            self.player2_points += 1
 
-    def get_score(self):
-        score = ""
-        temp_score = 0
+    def get_score(self) -> str:
+        if self._is_even_game():
+            return self._score_even_game()
 
-        if self.m_score1 == self.m_score2:
-            if self.m_score1 == 0:
-                score = "Love-All"
-            elif self.m_score1 == 1:
-                score = "Fifteen-All"
-            elif self.m_score1 == 2:
-                score = "Thirty-All"
-            else:
-                score = "Deuce"
-        elif self.m_score1 >= 4 or self.m_score2 >= 4:
-            minus_result = self.m_score1 - self. m_score2
+        if self._is_advantage_or_won_game():
+            return self._score_advantage_or_won_game()
 
-            if minus_result == 1:
-                score = "Advantage player1"
-            elif minus_result == -1:
-                score = "Advantage player2"
-            elif minus_result >= 2:
-                score = "Win for player1"
-            else:
-                score = "Win for player2"
-        else:
-            for i in range(1, 3):
-                if i == 1:
-                    temp_score = self.m_score1
-                else:
-                    score = score + "-"
-                    temp_score = self.m_score2
+        return self._score_other_cases()
 
-                if temp_score == 0:
-                    score = score + "Love"
-                elif temp_score == 1:
-                    score = score + "Fifteen"
-                elif temp_score == 2:
-                    score = score + "Thirty"
-                elif temp_score == 3:
-                    score = score + "Forty"
+    def _is_even_game(self) -> bool:
+        return self.player1_points == self.player2_points
 
-        return score
+    def _score_even_game(self) -> str:
+        if self.player1_points >= _DEUCE_THRESHOLD:
+            return "Deuce"
+        return f"{self._points_to_score(self.player1_points)}-All"
+
+    def _is_advantage_or_won_game(self) -> bool:
+        return (
+            self.player1_points >= _WIN_THRESHOLD
+            or self.player2_points >= _WIN_THRESHOLD
+        )
+
+    def _score_advantage_or_won_game(self) -> str:
+        points_difference = self.player1_points - self.player2_points
+
+        if points_difference == 1:
+            return self._score_advantage(1)
+        if points_difference == -1:
+            return self._score_advantage(2)
+        if points_difference >= 2:
+            return self._score_win(1)
+        return self._score_win(2)
+
+    @staticmethod
+    def _score_advantage(player: PlayerNumber) -> str:
+        return f"Advantage player{player}"
+
+    @staticmethod
+    def _score_win(player: PlayerNumber) -> str:
+        return f"Win for player{player}"
+
+    def _score_other_cases(self) -> str:
+        score1 = self._points_to_score(self.player1_points)
+        score2 = self._points_to_score(self.player2_points)
+        return f"{score1}-{score2}"
+
+    @staticmethod
+    def _points_to_score(points: int) -> str:
+        if points == 0:
+            return "Love"
+        if points == 1:
+            return "Fifteen"
+        if points == 2:
+            return "Thirty"
+        return "Forty"
