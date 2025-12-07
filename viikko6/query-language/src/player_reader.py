@@ -6,9 +6,9 @@ class PlayerReader:
     def __init__(self, url):
         self._url = url
 
-    def get_players(self):
+    def get_players(self) -> list[Player]:
         players_file = request.urlopen(self._url)
-        players = []
+        players: list[Player] = []
 
         for line in players_file:
             decoded_line = line.decode("utf-8")
@@ -19,7 +19,7 @@ class PlayerReader:
                     parts[0].strip(),
                     parts[1].strip(),
                     int(parts[3].strip()),
-                    int(parts[4].strip())
+                    int(parts[4].strip()),
                 )
 
                 players.append(player)

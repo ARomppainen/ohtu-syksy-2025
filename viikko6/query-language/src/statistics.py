@@ -1,12 +1,14 @@
+from matchers import Matcher
 from player_reader import PlayerReader
+from player import Player
 
 
-def sort_by_points(player):
+def sort_by_points(player: Player):
     return player.points
 
 
 class Statistics:
-    def __init__(self, player_reader):
+    def __init__(self, player_reader: PlayerReader):
         self._players = player_reader.get_players()
 
     def search(self, name):
@@ -16,27 +18,17 @@ class Statistics:
 
         return None
 
-    def team(self, team_name):
-        players_of_team = filter(
-            lambda player: player.team == team_name,
-            self._players
-        )
+    def team(self, team_name: str):
+        players_of_team = filter(lambda player: player.team == team_name, self._players)
 
         return list(players_of_team)
 
-    def top_scorers(self, how_many):
-        sorted_players = sorted(
-            self._players,
-            reverse=True,
-            key=sort_by_points
-        )
+    def top_scorers(self, how_many: int):
+        sorted_players = sorted(self._players, reverse=True, key=sort_by_points)
 
         return sorted_players[:how_many]
 
-    def matches(self, matcher):
-        matching_players = filter(
-            lambda player: matcher.test(player),
-            self._players
-        )
+    def matches(self, matcher: Matcher):
+        matching_players = filter(matcher.test, self._players)
 
         return list(matching_players)
