@@ -1,6 +1,6 @@
 from statistics import Statistics
 from player_reader import PlayerReader
-from matchers import All, And, HasAtLeast, HasFewerThan, Not, PlaysIn
+from matchers import All, And, HasAtLeast, HasFewerThan, Not, Or, PlaysIn
 
 
 def main():
@@ -32,6 +32,22 @@ def main():
     print("result of 4th query")
     filtered_with_all = stats.matches(All())
     print(len(filtered_with_all))
+    print()
+
+    matcher = Or(HasAtLeast(45, "goals"), HasAtLeast(70, "assists"))
+    print("result of 5th query")
+    for player in stats.matches(matcher):
+        print(player)
+    print()
+
+    matcher = And(
+        HasAtLeast(70, "points"), Or(PlaysIn("COL"), PlaysIn("FLA"), PlaysIn("BOS"))
+    )
+
+    print("result of 6th query")
+    for player in stats.matches(matcher):
+        print(player)
+    print()
 
 
 if __name__ == "__main__":

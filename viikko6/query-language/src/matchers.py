@@ -17,11 +17,15 @@ class And(Matcher):
         self._matchers = matchers
 
     def test(self, player: Player) -> bool:
-        for matcher in self._matchers:
-            if not matcher.test(player):
-                return False
+        return all(m.test(player) for m in self._matchers)
 
-        return True
+
+class Or(Matcher):
+    def __init__(self, *matchers: Matcher):
+        self._matchers = matchers
+
+    def test(self, player: Player) -> bool:
+        return any(m.test(player) for m in self._matchers)
 
 
 class Not(Matcher):
