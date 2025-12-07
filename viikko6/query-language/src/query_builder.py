@@ -1,5 +1,5 @@
 from typing import Any
-from matchers import All, And, HasAtLeast, HasFewerThan, Matcher, PlaysIn
+from matchers import All, And, HasAtLeast, HasFewerThan, Matcher, Or, PlaysIn
 
 
 class QueryBuilder:
@@ -12,8 +12,11 @@ class QueryBuilder:
     def plays_in(self, team: str) -> "QueryBuilder":
         return QueryBuilder(And(self._query, PlaysIn(team)))
 
-    def has_at_least(self, value: Any, attr: str):
+    def has_at_least(self, value: Any, attr: str) -> "QueryBuilder":
         return QueryBuilder(And(self._query, HasAtLeast(value, attr)))
 
-    def has_fewer_than(self, value: Any, attr: str):
+    def has_fewer_than(self, value: Any, attr: str) -> "QueryBuilder":
         return QueryBuilder(And(self._query, HasFewerThan(value, attr)))
+
+    def one_of(self, *queries: "QueryBuilder") -> "QueryBuilder":
+        return QueryBuilder(Or(*(q.build() for q in queries)))
