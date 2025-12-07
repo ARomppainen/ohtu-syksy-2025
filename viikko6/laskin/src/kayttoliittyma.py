@@ -1,6 +1,8 @@
 from enum import Enum
-from tkinter import ttk, constants, StringVar
+from tkinter import Tk, ttk, constants, StringVar
+from typing import Callable
 from komento import AKomento, Summa, Erotus, Nollaus, Kumoa
+from sovelluslogiikka import Sovelluslogiikka
 
 
 class Komento(Enum):
@@ -11,19 +13,20 @@ class Komento(Enum):
 
 
 class Kayttoliittyma:
-    def __init__(self, sovelluslogiikka, root):
-        self._sovelluslogiikka = sovelluslogiikka
+    def __init__(self, sovelluslogiikka: Sovelluslogiikka, root: Tk):
+        self._logiikka = sovelluslogiikka
         self._root = root
-        self._komennot: dict[Komento, AKomento] = {
-            Komento.SUMMA: Summa(sovelluslogiikka, self._lue_syote),
-            Komento.EROTUS: Erotus(sovelluslogiikka, self._lue_syote),
-            Komento.NOLLAUS: Nollaus(sovelluslogiikka),
-            Komento.KUMOA: Kumoa(sovelluslogiikka),
+        self._pino: list[AKomento] = []
+        self._komentotehdas: dict[Komento, Callable[[], AKomento]] = {
+            Komento.SUMMA: lambda: Summa(self._pino, self._logiikka, self._lue_syote),
+            Komento.EROTUS: lambda: Erotus(self._pino, self._logiikka, self._lue_syote),
+            Komento.NOLLAUS: lambda: Nollaus(self._pino, self._logiikka),
+            Komento.KUMOA: lambda: Kumoa(self._pino, self._logiikka),
         }
 
     def kaynnista(self):
         self._arvo_var = StringVar()
-        self._arvo_var.set(self._sovelluslogiikka.arvo())
+        self._arvo_var.set(self._logiikka.arvo())
         self._syote_kentta = ttk.Entry(master=self._root)
 
         tulos_teksti = ttk.Label(textvariable=self._arvo_var)
@@ -68,15 +71,16 @@ class Kayttoliittyma:
             return None
 
     def _suorita_komento(self, komento: Komento) -> None:
-        komento_olio = self._komennot[komento]
+        komento_olio = self._komentotehdas[komento]()
         komento_olio.suorita()
 
-        self._kumoa_painike["state"] = constants.NORMAL
+        self._kumoa_painike["state"] = (
+            constants.DISABLED if len(self._pino) == 0 else constants.NORMAL
+        )
 
-        if self._sovelluslogiikka.arvo() == 0:
-            self._nollaus_painike["state"] = constants.DISABLED
-        else:
-            self._nollaus_painike["state"] = constants.NORMAL
+        self._nollaus_painike["state"] = (
+            constants.DISABLED if self._logiikka.arvo() == 0 else constants.NORMAL
+        )
 
         self._syote_kentta.delete(0, constants.END)
-        self._arvo_var.set(self._sovelluslogiikka.arvo())
+        self._arvo_var.set(self._logiikka.arvo())
