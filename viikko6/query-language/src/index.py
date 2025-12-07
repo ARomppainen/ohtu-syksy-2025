@@ -1,5 +1,5 @@
-from statistics import Statistics
 from player_reader import PlayerReader
+from player_statistics import Statistics
 from matchers import All, And, HasAtLeast, HasFewerThan, Not, Or, PlaysIn
 
 
