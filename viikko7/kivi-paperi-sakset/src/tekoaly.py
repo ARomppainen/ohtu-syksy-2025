@@ -1,18 +1,13 @@
-class Tekoaly:
-    def __init__(self):
-        self._siirto = 0
+from abc import ABC, abstractmethod
 
-    def anna_siirto(self):
-        self._siirto = self._siirto + 1
-        self._siirto = self._siirto % 3
 
-        if self._siirto == 0:
-            return "k"
-        elif self._siirto == 1:
-            return "p"
-        else:
-            return "s"
+class Tekoaly(ABC):
+    """Abstrakti pääluokka kivi, paperi ja sakset -pelin tekoälylle"""
 
-    def aseta_siirto(self, siirto):
-        # ei tehdä mitään
-        pass
+    @abstractmethod
+    def anna_siirto(self) -> str:
+        """Anna seuraava siirto"""
+
+    @abstractmethod
+    def aseta_siirto(self, siirto: str) -> None:
+        """Tallenna toisen pelaajan edellinen siirto muistiin"""
