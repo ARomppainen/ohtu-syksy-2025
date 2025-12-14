@@ -10,9 +10,14 @@ app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
 
+def get_game_type():
+    """Get the game type from session as Pelityyppi enum"""
+    return Pelityyppi(session.get("game_type"))
+
+
 def get_or_create_ai():
     """Get or create the AI for the current game"""
-    game_type = Pelityyppi(session.get("game_type"))
+    game_type = get_game_type()
 
     if game_type == Pelityyppi.PELAAJA_VS_TEKOALY:
         if "ai_state" not in session:
@@ -36,7 +41,7 @@ def get_or_create_ai():
 
 def save_ai_state(ai):
     """Save the AI state to session"""
-    game_type = Pelityyppi(session.get("game_type"))
+    game_type = get_game_type()
 
     if game_type == Pelityyppi.PELAAJA_VS_TEKOALY:
         session["ai_state"] = {"siirto": ai._siirto}
@@ -52,7 +57,7 @@ def get_game():
     if "game_type" not in session:
         return None
 
-    game_type = Pelityyppi(session["game_type"])
+    game_type = get_game_type()
 
     # Create a custom input/print function for web interface
     def web_input(prompt):
@@ -137,7 +142,7 @@ def play():
     if "game_type" not in session:
         return redirect(url_for("index"))
 
-    game_type = Pelityyppi(session["game_type"])
+    game_type = get_game_type()
     history = session.get("history", [])
     tuomari = get_tuomari()
     game_over = session.get("game_over", False)
@@ -176,7 +181,7 @@ def make_move():
 
     # Get the game and determine player 2's move
     game = get_game()
-    game_type = Pelityyppi(session["game_type"])
+    game_type = get_game_type()
 
     if game_type == Pelityyppi.PELAAJA_VS_PELAAJA:
         # For PvP, player 2 move comes from the form
