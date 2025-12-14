@@ -137,7 +137,7 @@ def play():
     if "game_type" not in session:
         return redirect(url_for("index"))
 
-    game_type = session["game_type"]
+    game_type = Pelityyppi(session["game_type"])
     history = session.get("history", [])
     tuomari = get_tuomari()
     game_over = session.get("game_over", False)
@@ -152,8 +152,12 @@ def play():
         opponent = "Parannettu Tekoäly"
 
     return render_template(
-        "play.html", tuomari=tuomari, opponent=opponent, history=history,
-        game_over=game_over, winner=winner
+        "play.html",
+        tuomari=tuomari,
+        opponent=opponent,
+        history=history,
+        game_over=game_over,
+        winner=winner,
     )
 
 
