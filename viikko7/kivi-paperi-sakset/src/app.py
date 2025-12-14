@@ -3,9 +3,51 @@ import secrets
 from kps_factory import Pelityyppi, luo_kps_peli
 from tuomari import Tuomari
 from kps import KIVI, PAPERI, SAKSET
+from tekoaly_vuorotteleva import TekoalyVuorotteleva
+from tekoaly_parannettu import TekoalyParannettu
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
+
+
+def get_or_create_ai():
+    """Get or create the AI for the current game"""
+    game_type = Pelityyppi(session.get('game_type'))
+    
+    if game_type == Pelityyppi.PELAAJA_VS_TEKOALY:
+        if 'ai_state' not in session:
+            session['ai_state'] = {'siirto': 0}
+        
+        ai = TekoalyVuorotteleva()
+        ai._siirto = session['ai_state']['siirto']
+        return ai
+    
+    elif game_type == Pelityyppi.PELAAJA_VS_PAREMPI_TEKOALY:
+        if 'ai_state' not in session:
+            session['ai_state'] = {
+                'muisti': [None] * 10,
+                'vapaa_muisti_indeksi': 0
+            }
+        
+        ai = TekoalyParannettu(10)
+        ai._muisti = session['ai_state']['muisti']
+        ai._vapaa_muisti_indeksi = session['ai_state']['vapaa_muisti_indeksi']
+        return ai
+    
+    return None
+
+
+def save_ai_state(ai):
+    """Save the AI state to session"""
+    game_type = Pelityyppi(session.get('game_type'))
+    
+    if game_type == Pelityyppi.PELAAJA_VS_TEKOALY:
+        session['ai_state'] = {'siirto': ai._siirto}
+    elif game_type == Pelityyppi.PELAAJA_VS_PAREMPI_TEKOALY:
+        session['ai_state'] = {
+            'muisti': ai._muisti,
+            'vapaa_muisti_indeksi': ai._vapaa_muisti_indeksi
+        }
 
 
 def get_game():
@@ -26,6 +68,11 @@ def get_game():
     game._input = web_input
     game._print = web_print
     
+    # For AI games, restore the AI state
+    if game_type in [Pelityyppi.PELAAJA_VS_TEKOALY, Pelityyppi.PELAAJA_VS_PAREMPI_TEKOALY]:
+        ai = get_or_create_ai()
+        game._tekoaly = ai
+    
     return game
 
 
@@ -36,6 +83,10 @@ def get_tuomari():
             'ekan_pisteet': 0,
             'tokan_pisteet': 0,
             'tasapelit': 0
+    # Initialize AI state for AI games
+    if game_type in ['pvc', 'pvc_advanced']:
+        session.pop('ai_state', None)  # Clear any old AI state
+    
         }
     
     tuomari = Tuomari()
@@ -131,6 +182,9 @@ def make_move():
         player2_move = request.form.get('move2')
         if player2_move not in [KIVI, PAPERI, SAKSET]:
             return redirect(url_for('play'))
+        
+        # Save AI state after it makes its move
+        save_ai_state(game._tekoaly)
     else:
         # For AI games, get AI's move
         session['last_move'] = player1_move
