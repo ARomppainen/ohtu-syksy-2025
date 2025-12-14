@@ -27,7 +27,7 @@
     <form method="POST" action="{{ url_for('make_move') }}" class="move-form">
         <div class="player-section">
             <h3>Pelaaja 1 - Tee siirtosi:</h3>
-            <div class="move-buttons">
+            <div class="move-buttons" id="player1-buttons">
                 <button type="submit" name="move" value="k" class="move-btn">
                     <span class="emoji">🪨</span>
                     <span class="label">Kivi</span>
@@ -40,6 +40,9 @@
                     <span class="emoji">✂️</span>
                     <span class="label">Sakset</span>
                 </button>
+            </div>
+            <div id="player1-waiting" style="display: none;">
+                <p class="waiting-message">✅ Pelaaja 1 on valinnut siirtonsa. Odotetaan Pelaaja 2:n valintaa...</p>
             </div>
         </div>
         
@@ -60,7 +63,7 @@
                     <span class="label">Sakset</span>
                 </button>
             </div>
-            <p class="pvp-note">Huom! Molemmat pelaajat valitsevat siirtonsa yhtä aikaa. Pelaaja 1 valitsee ensimmäisenä ja Pelaaja 2 toisena.</p>
+            <p class="pvp-note">Huom! Pelaaja 1 valitsee ensin (siirto piilotetaan), sitten Pelaaja 2 tekee valintansa.</p>
         </div>
         {% endif %}
     </form>
@@ -103,6 +106,8 @@
         // Get all buttons
         const player1Buttons = document.querySelectorAll('.player-section:not(.player2-section) .move-btn');
         const player2Buttons = document.querySelectorAll('.player2-section .move-btn');
+        const player1ButtonsContainer = document.getElementById('player1-buttons');
+        const player1WaitingMsg = document.getElementById('player1-waiting');
         
         // Handle player 1 button clicks
         player1Buttons.forEach(btn => {
@@ -110,8 +115,12 @@
                 if (!player1Move) {
                     e.preventDefault();
                     player1Move = btn.value;
-                    btn.classList.add('selected');
-                    player1Buttons.forEach(b => b.disabled = true);
+                    
+                    // Hide player 1's buttons and show waiting message
+                    player1ButtonsContainer.style.display = 'none';
+                    player1WaitingMsg.style.display = 'block';
+                    
+                    // Enable player 2 section
                     document.querySelector('.player2-section').style.opacity = '1';
                     document.querySelector('.player2-section').style.pointerEvents = 'auto';
                 }

@@ -267,6 +267,17 @@ footer {
     padding-top: 30px;
 }
 
+.waiting-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #28a745;
+    font-weight: 600;
+    padding: 40px 20px;
+    background: #d4edda;
+    border-radius: 10px;
+    border: 2px solid #28a745;
+}
+
 /* History */
 .history {
     margin-top: 40px;
