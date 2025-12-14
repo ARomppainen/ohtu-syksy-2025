@@ -228,8 +228,8 @@ def make_move():
     )
     session["history"] = history
 
-    # Check if someone has reached 5 wins
-    WINS_NEEDED = 5
+    # Check if someone has reached 3 wins
+    WINS_NEEDED = 3
     if tuomari.ekan_pisteet >= WINS_NEEDED:
         session["game_over"] = True
         session["winner"] = "Pelaaja 1"

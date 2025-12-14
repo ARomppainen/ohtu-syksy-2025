@@ -384,144 +384,143 @@ class TestIntegration:
             assert second_session_history_len == 0
 
 
-class TestFiveWinsFeature:
-    """Tests for the 5-wins game completion feature"""
+class TestThreeWinsFeature:
+    """Tests for the 3-wins game completion feature"""
 
     def test_game_not_over_with_4_wins(self, client):
-        """Test that game is not over when a player has 4 wins"""
+        """Test that game is not over when a player has 2 wins"""
         client.post("/start", data={"game_type": "pvp"})
-        
-        # Player 1 wins 4 times
-        for _ in range(4):
+
+        # Player 1 wins 2 times
+        for _ in range(2):
             client.post("/move", data={"move": KIVI, "move2": SAKSET})
-        
+
         with client.session_transaction() as sess:
             assert sess.get("game_over") is False
             assert sess.get("winner") is None
 
     def test_game_ends_when_player1_reaches_5_wins(self, client):
-        """Test that game ends when Player 1 reaches 5 wins"""
+        """Test that game ends when Player 1 reaches 3 wins"""
         client.post("/start", data={"game_type": "pvp"})
-        
-        # Player 1 wins 5 times with rock vs scissors
-        for _ in range(5):
+
+        # Player 1 wins 3 times with rock vs scissors
+        for _ in range(3):
             client.post("/move", data={"move": KIVI, "move2": SAKSET})
-        
+
         with client.session_transaction() as sess:
             assert sess.get("game_over") is True
             assert sess.get("winner") == "Pelaaja 1"
-            assert sess["tuomari"]["ekan_pisteet"] == 5
+            assert sess["tuomari"]["ekan_pisteet"] == 3
 
-    def test_game_ends_when_player2_reaches_5_wins(self, client):
-        """Test that game ends when Player 2 reaches 5 wins"""
+    def test_game_ends_when_player2_reaches_3_wins(self, client):
+        """Test that game ends when Player 2 reaches 3 wins"""
         client.post("/start", data={"game_type": "pvp"})
-        
-        # Player 2 wins 5 times with paper vs rock
-        for _ in range(5):
+
+        # Player 2 wins 3 times with paper vs rock
+        for _ in range(3):
             client.post("/move", data={"move": KIVI, "move2": PAPERI})
-        
+
         with client.session_transaction() as sess:
             assert sess.get("game_over") is True
             assert sess.get("winner") == "Pelaaja 2"
-            assert sess["tuomari"]["tokan_pisteet"] == 5
+            assert sess["tuomari"]["tokan_pisteet"] == 3
 
     def test_no_moves_allowed_after_game_ends(self, client):
         """Test that no more moves are allowed after game ends"""
         client.post("/start", data={"game_type": "pvp"})
-        
-        # Player 1 wins 5 times
-        for _ in range(5):
+
+        # Player 1 wins 3 times
+        for _ in range(3):
             client.post("/move", data={"move": KIVI, "move2": SAKSET})
-        
+
         # Try to make another move
-        response = client.post(
+        client.post(
             "/move",
             data={"move": PAPERI, "move2": KIVI},
             follow_redirects=True,
         )
-        
+
         # Should be on play page but game should still be over
         with client.session_transaction() as sess:
             assert sess.get("game_over") is True
-            assert len(sess.get("history", [])) == 5  # No new move added
+            assert len(sess.get("history", [])) == 3  # No new move added
 
     def test_game_end_message_displayed(self, client):
         """Test that game end message is displayed"""
         client.post("/start", data={"game_type": "pvp"})
-        
-        # Player 1 wins 5 times
-        for _ in range(5):
+
+        # Player 1 wins 3 times
+        for _ in range(3):
             client.post("/move", data={"move": KIVI, "move2": SAKSET})
-        
+
         response = client.get("/play")
         content = response.data.decode("utf-8")
         assert "Peli päättyi!" in content or "voitti pelin" in content
 
-    def test_game_with_draws_then_5_wins(self, client):
+    def test_game_with_draws_then_3_wins(self, client):
         """Test game with draws mixed in before reaching 5 wins"""
         client.post("/start", data={"game_type": "pvp"})
-        
+
         # Mix of draws and Player 1 wins
         moves = [
-            (KIVI, KIVI),     # Draw
-            (KIVI, SAKSET),   # P1 wins (1)
-            (PAPERI, PAPERI), # Draw
-            (PAPERI, KIVI),   # P1 wins (2)
-            (SAKSET, SAKSET), # Draw
-            (SAKSET, PAPERI), # P1 wins (3)
-            (KIVI, KIVI),     # Draw
-            (KIVI, SAKSET),   # P1 wins (4)
-            (PAPERI, PAPERI), # Draw
-            (PAPERI, KIVI),   # P1 wins (5) - GAME ENDS
+            (KIVI, KIVI),  # Draw
+            (KIVI, SAKSET),  # P1 wins (1)
+            (PAPERI, PAPERI),  # Draw
+            (PAPERI, KIVI),  # P1 wins (2)
+            (SAKSET, SAKSET),  # Draw
+            (SAKSET, PAPERI),  # P1 wins (3) - GAME ENDS
         ]
-        
+
         for p1_move, p2_move in moves:
             client.post("/move", data={"move": p1_move, "move2": p2_move})
-        
+
         with client.session_transaction() as sess:
             assert sess.get("game_over") is True
             assert sess.get("winner") == "Pelaaja 1"
-            assert sess["tuomari"]["tasapelit"] == 5
-            assert sess["tuomari"]["ekan_pisteet"] == 5
+            assert sess["tuomari"]["tasapelit"] == 3
+            assert sess["tuomari"]["ekan_pisteet"] == 3
 
-    def test_ai_game_ends_at_5_wins(self, client):
-        """Test that AI game also ends at 5 wins"""
+    def test_ai_game_ends_at_3_wins(self, client):
+        """Test that AI game also ends at 3 wins"""
         client.post("/start", data={"game_type": "pvc"})
-        
-        # Play until someone reaches 5 wins
-        wins_needed = 5
+
+        # Play until someone reaches 3 wins
         rounds_played = 0
         max_rounds = 50  # Safety limit
-        
+
         while rounds_played < max_rounds:
-            response = client.post("/move", data={"move": KIVI})
+            client.post("/move", data={"move": KIVI})
             rounds_played += 1
-            
+
             with client.session_transaction() as sess:
                 if sess.get("game_over"):
                     break
-        
+
         with client.session_transaction() as sess:
             assert sess.get("game_over") is True
             assert sess.get("winner") is not None
-            # One player should have exactly 5 wins
-            assert (sess["tuomari"]["ekan_pisteet"] == 5 or 
-                   sess["tuomari"]["tokan_pisteet"] == 5)
+            # One player should have exactly 3 wins
+            assert (
+                sess["tuomari"]["ekan_pisteet"] == 3
+                or sess["tuomari"]["tokan_pisteet"] == 3
+            )
 
     def test_reset_after_game_ends(self, client):
         """Test that reset works after game ends"""
         client.post("/start", data={"game_type": "pvp"})
-        
+
         # Play until game ends
-        for _ in range(5):
+        for _ in range(3):
             client.post("/move", data={"move": KIVI, "move2": SAKSET})
-        
+
         # Reset
         response = client.get("/reset", follow_redirects=True)
         assert "Valitse pelityyppi" in response.data.decode("utf-8")
-        
+
         # Start a new game
-        response = client.post("/start", data={"game_type": "pvp"}, follow_redirects=True)
+        response = client.post(
+            "/start", data={"game_type": "pvp"}, follow_redirects=True
+        )
         with client.session_transaction() as sess:
             assert sess.get("game_over") is False
             assert sess.get("winner") is None
