@@ -12,7 +12,7 @@
     <div class="scoreboard">
         <div class="score">
             <h3>Pelaaja 1</h3>
-            <div class="score-value">{{ tuomari.ekan_pisteet }}</div>
+            <div class="score-value">{{ tuomari.ekan_pisteet }}/5</div>
         </div>
         <div class="score">
             <h3>Tasapelit</h3>
@@ -20,11 +20,21 @@
         </div>
         <div class="score">
             <h3>{{ opponent }}</h3>
-            <div class="score-value">{{ tuomari.tokan_pisteet }}</div>
+            <div class="score-value">{{ tuomari.tokan_pisteet }}/5</div>
         </div>
     </div>
     
+    {% if game_over %}
+    <div class="game-over-message">
+        <h2>🎉 Peli päättyi!</h2>
+        <p><strong>{{ winner }} voitti pelin!</strong></p>
+        <p>Lopputulos: Pelaaja 1 {{ tuomari.ekan_pisteet }} - {{ tuomari.tokan_pisteet }} {{ opponent }}</p>
+        <a href="{{ url_for('reset') }}" class="btn btn-primary">Uusi peli</a>
+    </div>
+    {% endif %}
+    
     <form method="POST" action="{{ url_for('make_move') }}" class="move-form">
+        {% if not game_over %}
         <div class="player-section">
             <h3>Pelaaja 1 - Tee siirtosi:</h3>
             <div class="move-buttons" id="player1-buttons">
@@ -65,6 +75,7 @@
             </div>
             <p class="pvp-note">Huom! Pelaaja 1 valitsee ensin (siirto piilotetaan), sitten Pelaaja 2 tekee valintansa.</p>
         </div>
+        {% endif %}
         {% endif %}
     </form>
     

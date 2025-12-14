@@ -121,6 +121,8 @@ def start_game():
 
     session["tuomari"] = {"ekan_pisteet": 0, "tokan_pisteet": 0, "tasapelit": 0}
     session["history"] = []
+    session["game_over"] = False
+    session["winner"] = None
 
     # Initialize AI state for AI games
     if game_type in ["pvc", "pvc_advanced"]:
@@ -135,9 +137,11 @@ def play():
     if "game_type" not in session:
         return redirect(url_for("index"))
 
-    tuomari = get_tuomari()
-    game_type = Pelityyppi(session["game_type"])
+    game_type = session["game_type"]
     history = session.get("history", [])
+    tuomari = get_tuomari()
+    game_over = session.get("game_over", False)
+    winner = session.get("winner", None)
 
     # Determine opponent name
     if game_type == Pelityyppi.PELAAJA_VS_PELAAJA:
@@ -148,15 +152,17 @@ def play():
         opponent = "Parannettu Tekoäly"
 
     return render_template(
-        "play.html", tuomari=tuomari, opponent=opponent, history=history
+        "play.html", tuomari=tuomari, opponent=opponent, history=history,
+        game_over=game_over, winner=winner
     )
 
 
 @app.route("/move", methods=["POST"])
 def make_move():
     """Process a move from player 1"""
-    if "game_type" not in session:
-        return redirect(url_for("index"))
+    # Check if game is already over
+    if session.get("game_over", False):
+        return redirect(url_for("play"))
 
     player1_move = request.form.get("move")
 
@@ -211,6 +217,17 @@ def make_move():
             "result": result,
         }
     )
+    session["history"] = history
+
+    # Check if someone has reached 5 wins
+    WINS_NEEDED = 5
+    if tuomari.ekan_pisteet >= WINS_NEEDED:
+        session["game_over"] = True
+        session["winner"] = "Pelaaja 1"
+    elif tuomari.tokan_pisteet >= WINS_NEEDED:
+        session["game_over"] = True
+        session["winner"] = "Pelaaja 2"
+
     session["history"] = history
 
     return redirect(url_for("play"))
