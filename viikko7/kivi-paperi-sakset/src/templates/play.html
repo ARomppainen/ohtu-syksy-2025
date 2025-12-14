@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Pelaa - Kivi-Paperi-Sakset{% endblock %}
+
+{% block content %}
+<div class="game-play">
+    <div class="game-header">
+        <h2>Pelaaja 1 vs {{ opponent }}</h2>
+        <a href="{{ url_for('reset') }}" class="btn btn-secondary">Uusi peli</a>
+    </div>
+    
+    <div class="scoreboard">
+        <div class="score">
+            <h3>Pelaaja 1</h3>
+            <div class="score-value">{{ tuomari.ekan_pisteet }}</div>
+        </div>
+        <div class="score">
+            <h3>Tasapelit</h3>
+            <div class="score-value">{{ tuomari.tasapelit }}</div>
+        </div>
+        <div class="score">
+            <h3>{{ opponent }}</h3>
+            <div class="score-value">{{ tuomari.tokan_pisteet }}</div>
+        </div>
+    </div>
+    
+    <form method="POST" action="{{ url_for('make_move') }}" class="move-form">
+        <div class="player-section">
+            <h3>Pelaaja 1 - Tee siirtosi:</h3>
+            <div class="move-buttons">
+                <button type="submit" name="move" value="k" class="move-btn">
+                    <span class="emoji">🪨</span>
+                    <span class="label">Kivi</span>
+                </button>
+                <button type="submit" name="move" value="p" class="move-btn">
+                    <span class="emoji">📄</span>
+                    <span class="label">Paperi</span>
+                </button>
+                <button type="submit" name="move" value="s" class="move-btn">
+                    <span class="emoji">✂️</span>
+                    <span class="label">Sakset</span>
+                </button>
+            </div>
+        </div>
+        
+        {% if opponent == "Pelaaja 2" %}
+        <div class="player-section player2-section">
+            <h3>Pelaaja 2 - Tee siirtosi:</h3>
+            <div class="move-buttons">
+                <button type="submit" name="move2" value="k" class="move-btn">
+                    <span class="emoji">🪨</span>
+                    <span class="label">Kivi</span>
+                </button>
+                <button type="submit" name="move2" value="p" class="move-btn">
+                    <span class="emoji">📄</span>
+                    <span class="label">Paperi</span>
+                </button>
+                <button type="submit" name="move2" value="s" class="move-btn">
+                    <span class="emoji">✂️</span>
+                    <span class="label">Sakset</span>
+                </button>
+            </div>
+            <p class="pvp-note">Huom! Molemmat pelaajat valitsevat siirtonsa yhtä aikaa. Pelaaja 1 valitsee ensimmäisenä ja Pelaaja 2 toisena.</p>
+        </div>
+        {% endif %}
+    </form>
+    
+    {% if history %}
+    <div class="history">
+        <h3>Pelihistoria</h3>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Kierros</th>
+                    <th>Pelaaja 1</th>
+                    <th>{{ opponent }}</th>
+                    <th>Tulos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for round in history[::-1] %}
+                <tr>
+                    <td>{{ round.round }}</td>
+                    <td>{{ round.player1 }}</td>
+                    <td>{{ round.player2 }}</td>
+                    <td class="result">{{ round.result }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // For PvP mode: handle two-player selection
+    {% if opponent == "Pelaaja 2" %}
+    (function() {
+        const form = document.querySelector('.move-form');
+        let player1Move = null;
+        let player2Move = null;
+        
+        // Get all buttons
+        const player1Buttons = document.querySelectorAll('.player-section:not(.player2-section) .move-btn');
+        const player2Buttons = document.querySelectorAll('.player2-section .move-btn');
+        
+        // Handle player 1 button clicks
+        player1Buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!player1Move) {
+                    e.preventDefault();
+                    player1Move = btn.value;
+                    btn.classList.add('selected');
+                    player1Buttons.forEach(b => b.disabled = true);
+                    document.querySelector('.player2-section').style.opacity = '1';
+                    document.querySelector('.player2-section').style.pointerEvents = 'auto';
+                }
+            });
+        });
+        
+        // Handle player 2 button clicks
+        player2Buttons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (player1Move && !player2Move) {
+                    // Allow submission
+                    player2Move = btn.value;
+                    // Create hidden input for player 1's move
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'move';
+                    hiddenInput.value = player1Move;
+                    form.appendChild(hiddenInput);
+                } else if (!player1Move) {
+                    e.preventDefault();
+                    alert('Pelaaja 1 valitsee ensin!');
+                }
+            });
+        });
+        
+        // Initially disable player 2 section
+        document.querySelector('.player2-section').style.opacity = '0.5';
+        document.querySelector('.player2-section').style.pointerEvents = 'none';
+    })();
+    {% endif %}
+</script>
+{% endblock %}

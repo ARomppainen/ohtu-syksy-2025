@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Valitse pelityyppi - Kivi-Paperi-Sakset{% endblock %}
+
+{% block content %}
+<div class="game-selection">
+    <h2>Valitse pelityyppi</h2>
+    
+    <form method="POST" action="{{ url_for('start_game') }}">
+        <div class="game-options">
+            <div class="game-option">
+                <input type="radio" id="pvp" name="game_type" value="pvp" checked>
+                <label for="pvp">
+                    <div class="option-card">
+                        <h3>👥 Pelaaja vs Pelaaja</h3>
+                        <p>Pelaa ystävää vastaan samalla laitteella</p>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="game-option">
+                <input type="radio" id="pvc" name="game_type" value="pvc">
+                <label for="pvc">
+                    <div class="option-card">
+                        <h3>🤖 Pelaaja vs Tekoäly</h3>
+                        <p>Pelaa vuorottelevaa tekoälyä vastaan</p>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="game-option">
+                <input type="radio" id="pvc_advanced" name="game_type" value="pvc_advanced">
+                <label for="pvc_advanced">
+                    <div class="option-card">
+                        <h3>🧠 Pelaaja vs Parannettu Tekoäly</h3>
+                        <p>Pelaa älykkäämpää tekoälyä vastaan</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Aloita peli</button>
+    </form>
+</div>
+{% endblock %}
